@@ -1,0 +1,113 @@
+#!/bin/bash
+
+printf "+--------------------------------------------------YourLAB--------------------------------------------------------+
+"
+printf "[32m目录说明:[0m
+"
+printf "╔═════════════════╦══════╦════╦═════════════════════════════════════════════════════════════════════════╗
+"
+printf "║目录             ║名称  ║速度║说明                                                                     ║
+"
+printf "╠═════════════════╬══════╬════╬═════════════════════════════════════════════════════════════════════════╣
+"
+printf "║/                ║系统盘║固态║实例关机数据会丢失。                                                     ║
+"
+printf "║(包括/root)      ║      ║    ║\033[1;31m数据盘外所有均会被docker备份，占用系统盘，所以数据盘外禁止存放数据！\033[0m     ║
+"
+printf "╠═════════════════╬══════╬════╬═════════════════════════════════════════════════════════════════════════╣
+"
+printf "║/root/data1      ║数据盘║机械║实例关机数据不会丢失，可存放代码和数据。可以在docker外找到实际路径。     ║
+"
+printf "║/root/data       ║数据盘║固态║实例关机数据不会丢失，可存放代码和数据。可以在docker外找到实际路径。     ║
+"
+if test -d /root/YourLAB-nas ; then
+  printf "║/root/YourLAB-nas ║网盘  ║慢  ║可以实现多实例间的文件同步共享，不受实例开关机和保存镜像的影响。         ║
+"
+fi
+printf "╚═════════════════╩══════╩════╩═════════════════════════════════════════════════════════════════════════╝
+"
+
+cfs_quota_us=$(cat /sys/fs/cgroup/cpu/cpu.cfs_quota_us)
+cfs_period_us=$(cat /sys/fs/cgroup/cpu/cpu.cfs_period_us)
+if [ $cfs_quota_us -ge $cfs_period_us ];then
+    cores=$((cfs_quota_us / cfs_period_us))
+else
+    cores=0.$((cfs_quota_us * 10 / cfs_period_us))
+fi
+
+if [ $cfs_quota_us -eq -1 ];then
+printf "[32mCPU[0m ：%s 核心
+" "$(nproc)"
+else
+printf "[32mCPU[0m ：%s 核心
+" "${cores}"
+fi
+
+
+
+limit_in_bytes=$(cat /sys/fs/cgroup/memory/memory.limit_in_bytes)
+memory="$((limit_in_bytes / 1024 / 1024 / 1024)) GB"
+printf "[32m内存[0m：%s
+" "${memory}"
+
+if type nvidia-smi >/dev/null 2>&1; then
+  gpu=$(nvidia-smi -i 0 --query-gpu=name,count --format=csv,noheader)
+  printf "[32mGPU [0m：%s
+" "${gpu}"
+fi
+
+printf "[32m存储[0m：
+"
+disk=$(df -ah | grep "/$" | awk '{print $5" "$3"/"$2}')
+printf "[32m  系统盘/          [0m：%s
+" "${disk}"
+
+if test -d /root/data1 ; then
+  disk=$(df -ah | grep "data1" | awk '{print $5" "$3"/"$2}')
+  printf "[32m  数据盘/root/data1[0m：%s
+" "${disk}"
+fi
+
+if test -d /root/data ; then
+  disk=$(df -ah | grep -v "data1" | grep "data" | awk '{print $5" "$3"/"$2}')
+  printf "[32m  数据盘/root/data [0m：%s
+" "${disk}"
+fi
+
+# if test -d /root/autodl-nas ; then
+#   disk=$(df -ah | grep "autodl-nas" | awk '{print $5" "$3"/"$2}')
+#   printf "[32m  网  盘/root/autodl-nas[0m：%s
+# " "${disk}"
+# fi
+printf "+----------------------------------------------------------------------------------------------------------------+
+"
+printf "[31m*注意: [0m
+"
+printf "[31m1.系统盘较小请将大的数据存放于数据盘或网盘中，重置系统时数据盘和网盘中的数据不受影响[0m
+"
+# printf "[31m2.清理系统盘请参考：https://www.autodl.com/docs/qa/[0m
+# "
+
+
+# result=$(echo $gpu | grep "A4000")
+# bashrc=`cat /etc/profile`
+# if [[ "$result" != "" ]]; then
+#     if [[ "$bashrc" =~ "NCCL_P2P_DISABLE" ]]; then
+#         :
+#     else
+#         echo "export NCCL_P2P_DISABLE=1" >> /etc/profile
+#         source /etc/profile
+#     fi
+# fi
+# result=$(echo $gpu | grep "A5000")
+# if [[ "$result" != "" ]]; then
+#     if [[ "$bashrc" =~ "NCCL_P2P_DISABLE" ]]; then
+#         :
+#     else
+#         echo "export NCCL_P2P_DISABLE=1" >> /etc/profile
+#         source /etc/profile
+#     fi
+# fi
+
+# alias sudo=""
+
