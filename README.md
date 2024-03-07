@@ -1,1 +1,1 @@
-# LAB_docker
+# AUTODL style Docker for small-scale laboratory
