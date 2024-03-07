@@ -36,7 +36,7 @@ RUN git clone https://github.com/ohmyzsh/ohmyzsh.git ~/.oh-my-zsh
 RUN cp $HOME/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc 
 
 # 修改/root/.bashrc，添加执行.lab_motd的命令
-RUN echo 'source /root/.lab_motd' >> /root/.zshrc
+RUN echo 'bash /root/.lab_motd' >> /root/.zshrc
 
 # 安装powerlevel10k主题
 RUN git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
