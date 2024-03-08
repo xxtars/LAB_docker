@@ -29,7 +29,7 @@ RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/
 EXPOSE 22
 
 # 设置MOTD
-COPY ./lab_22.04.motd ~/.lab_motd
+COPY ./lab_22.04.motd /root/.lab_motd
 
 # 安装oh-my-zsh（可选）
 RUN git clone https://github.com/ohmyzsh/ohmyzsh.git ~/.oh-my-zsh
