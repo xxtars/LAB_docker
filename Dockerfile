@@ -29,16 +29,19 @@ RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/
 EXPOSE 22
 
 # 设置MOTD
-COPY ./lab_22.04.motd /root/.lab_motd
+COPY ./lab_22.04.motd ~/.lab_motd
 
 # 安装oh-my-zsh（可选）
 RUN git clone https://github.com/ohmyzsh/ohmyzsh.git ~/.oh-my-zsh
 RUN cp $HOME/.oh-my-zsh/templates/zshrc.zsh-template ~/.zshrc 
 
 # 修改/root/.bashrc，添加执行.lab_motd的命令
-RUN echo 'bash /root/.lab_motd' >> /root/.zshrc
+RUN echo 'bash ~/.lab_motd' >> ~/.zshrc
 
-RUN echo '# CUDA\nexport PATH=/usr/local/cuda/bin:$PATH\nexport LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH\nexport LIBRARY_PATH=/usr/local/cuda/lib64:$LIBRARY_PATH' >> /root/.zshrc
+# Add the CUDA environment variables to Zsh's configuration
+RUN echo 'export PATH=/usr/local/cuda/bin:$PATH' >> ~/.zshrc \
+    && echo 'export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH' >> ~/.zshrc \
+    && echo 'export LIBRARY_PATH=/usr/local/cuda/lib64:$LIBRARY_PATH' >> ~/.zshrc
 
 
 # 安装powerlevel10k主题
